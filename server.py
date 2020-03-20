@@ -83,10 +83,10 @@ async def bulk_prediction(request):
 def form(request):
     return HTMLResponse(
         """
-        <form action="/upload" method="post" enctype="multipart/form-data">
+        <form action="/bulk-predict" method="post" enctype="multipart/form-data">
             Select CSV to upload:
             <input type="file" name="file">
-            <input type="submit" value="Upload CSV">
+            <button type="submit" value="Upload CSV">
         </form>
         """
     )
