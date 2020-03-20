@@ -77,7 +77,7 @@ async def bulk_prediction(request):
         data.append(row[0])
 
     email = form['email']
-    first_name = form['first_name']
+    first_name = form['first-name']
     last_name = form['last-name']
 
     bulk_predict.delay(data, email, first_name, last_name)
