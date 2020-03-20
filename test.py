@@ -29,6 +29,8 @@ async def bulk_prediction(request):
     for row in reader:
         data.append(row[0])
 
+    print(form['email'])
+
     return RedirectResponse('/')
 
 

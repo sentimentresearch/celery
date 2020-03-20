@@ -7,20 +7,24 @@ from sendgrid.helpers.mail import (
 from sendgrid import SendGridAPIClient
 from uuid import uuid4
 import csv
+from simpletransformers.classification import ClassificationModel
 
 app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379"))
 
 
 @app.task
-def bulk_predict(model, data, email):
+def bulk_predict(data, email, first_name, last_name):
+    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+            'reprocess_input_data': True, 'silent': True}
+    model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
 
     predictions = model.predict(data)[0].tolist()
 
     message = Mail(
         from_email='thilo@colabel.com',
         to_emails=email,
-        subject='Sending with Twilio SendGrid is Fun',
-        html_content='<strong>and easy to do anywhere, even with Python</strong>')
+        subject='Your sentiment analysis results are ready',
+        html_content='Dear ' + first_name + ' ' + last_name + ' you can find your data attached to this email.')
 
     filename = str(uuid4()) + '.csv'
     with open(filename, 'w') as f:

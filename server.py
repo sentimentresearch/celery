@@ -76,7 +76,11 @@ async def bulk_prediction(request):
     for row in reader:
         data.append(row[0])
 
-    bulk_predict.delay(model, data, 'thilo.huellmann@gmail.com')
+    email = form['email']
+    first_name = form['first_name']
+    last_name = form['last-name']
+
+    bulk_predict.delay(data, email, first_name, last_name)
 
     return RedirectResponse('/')
 
