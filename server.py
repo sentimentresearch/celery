@@ -1,11 +1,10 @@
 import aiohttp
 import asyncio
 import uvicorn
-from io import BytesIO, StringIO
+from io import StringIO
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import UJSONResponse
-from starlette.staticfiles import StaticFiles
+from starlette.responses import UJSONResponse, HTMLResponse
 from simpletransformers.classification import ClassificationModel
 import zipfile
 import os
@@ -78,6 +77,19 @@ async def bulk_prediction(request):
     bulk_predict(model, data, 'thilo.huellmann@gmail.com')
 
     return UJSONResponse({'message': 'data queued'})
+
+
+@app.route("/")
+def form(request):
+    return HTMLResponse(
+        """
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            Select CSV to upload:
+            <input type="file" name="file">
+            <input type="submit" value="Upload CSV">
+        </form>
+        """
+    )
 
 
 if __name__ == '__main__':
