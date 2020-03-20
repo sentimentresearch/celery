@@ -4,10 +4,11 @@ import uvicorn
 from io import StringIO
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import UJSONResponse, HTMLResponse
+from starlette.responses import UJSONResponse, RedirectResponse
 from simpletransformers.classification import ClassificationModel
 import zipfile
 import os
+from starlette.templating import Jinja2Templates
 from tasks import bulk_predict
 import csv
 
@@ -17,6 +18,7 @@ export_file_name = 'model_files.zip'
 
 app = Starlette()
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_headers=['*'], allow_methods=['*'])
+templates = Jinja2Templates(directory='templates')
 
 
 async def download_file(url, dest):
@@ -74,22 +76,14 @@ async def bulk_prediction(request):
     for row in reader:
         data.append(row[0])
 
-    bulk_predict(model, data, 'thilo.huellmann@gmail.com')
+    bulk_predict.delay(model, data, 'thilo.huellmann@gmail.com')
 
-    return UJSONResponse({'message': 'data queued'})
+    return RedirectResponse('/')
 
 
 @app.route("/")
 def form(request):
-    return HTMLResponse(
-        """
-        <form action="/bulk-predict" method="post" enctype="multipart/form-data">
-            Select CSV to upload:
-            <input type="file" name="file">
-            <button type="submit" value="Upload CSV">
-        </form>
-        """
-    )
+    return templates.TemplateResponse('index.html', {'request': request})
 
 
 if __name__ == '__main__':

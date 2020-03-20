@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  </head>
+  <style type="text/css">#submit {background-color: #e37262}</style>
+  <body>
+	  <section class="section">
+	    <div class="container">
+	    	<div class="columns">
+
+				<form action="/bulk-predict" method="post" enctype="multipart/form-data">
+				  <div class="column">
+
+					<div class="columns">
+					  <div class="column">
+						<input class="input" type="text" placeholder="First name">
+					  </div>
+					  <div class="column">
+						<input class="input" type="text" placeholder="Last name">
+					  </div>
+					</div>
+
+					<div class="columns">
+					  <div class="column">
+						<input class="input" type="text" placeholder="Organization">
+					  </div>
+					</div>
+
+					<div class="columns">
+					  <div class="column">
+						<input class="input" type="text" placeholder="Email">
+					  </div>
+					</div>
+
+					<div class="columns">
+						<div class="column">
+							<div class="file">
+							  <label class="file-label">
+								<input class="file-input" type="file" name="file">
+								<span class="file-cta">
+								  <span class="file-icon">
+									<i class="fas fa-upload"></i>
+								  </span>
+								  <span class="file-label">
+									Choose a CSV...
+								  </span>
+								</span>
+							  </label>
+							</div>
+						</div>
+					</div>
+
+					<!-- on click: upload state, then "thank you" message -->
+
+					<div class="columns">
+						<div class="column">
+							<label class="checkbox">
+							  <input type="checkbox">
+							  I agree to the <a href="#">terms and conditions</a>
+							</label>
+						</div>
+					</div>
+
+					<div class="columns">
+						<div class="column">
+							<div class="buttons">
+							  <button id="submit" type="submit" class="button is-primary">Submit</button>
+							</div>
+						</div>
+					</div>
+				  </div>
+				</form>
+			</div>
+	    </div>
+	  </section>
+  </body>
+  <script type="text/javascript">
+  </script>
+</html>
