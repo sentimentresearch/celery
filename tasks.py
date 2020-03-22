@@ -35,14 +35,13 @@ async def setup_model():
     return classifier
 
 
-loop = asyncio.get_event_loop()
-tasks = [asyncio.ensure_future(setup_model())]
-model = loop.run_until_complete(asyncio.gather(*tasks))[0]
-loop.close()
-
-
 @app.task
 def bulk_predict(data, email, first_name, last_name):
+    loop = asyncio.get_event_loop()
+    tasks = [asyncio.ensure_future(setup_model())]
+    model = loop.run_until_complete(asyncio.gather(*tasks))[0]
+    loop.close()
+
     predictions = model.predict(data)[0].tolist()
 
     message = Mail(
