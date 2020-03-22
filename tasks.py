@@ -28,8 +28,8 @@ async def download_file(url, dest):
 
 async def setup_model():
     await download_file(export_file_url, export_file_name)
-    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
-            'reprocess_input_data': True, 'silent': True}
+    args = {'use_multiprocessing': True, 'no_cache': True, 'use_cached_eval_features': False,
+            'reprocess_input_data': True, 'silent': False}
     zipfile.ZipFile('model_files.zip').extractall()
     classifier = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
     return classifier
