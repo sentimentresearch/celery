@@ -5,12 +5,13 @@ from io import StringIO
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import UJSONResponse, RedirectResponse
-from simpletransformers.classification import ClassificationModel
+# from simpletransformers.classification import ClassificationModel
 import zipfile
 import os
 from starlette.templating import Jinja2Templates
-from tasks import bulk_predict
+# from tasks import bulk_predict
 import csv
+from time import sleep
 
 export_file_url = os.getenv('MODEL_DROPBOX_LINK')
 export_file_name = 'model_files.zip'
@@ -29,21 +30,21 @@ async def download_file(url, dest):
                 f.write(data)
 
 
-async def setup_model():
-    await download_file(export_file_url, export_file_name)
-    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
-            'reprocess_input_data': True, 'silent': True}
-    zipfile.ZipFile('model_files.zip').extractall()
-    model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
-    return model
+# async def setup_model():
+#     await download_file(export_file_url, export_file_name)
+#     args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+#             'reprocess_input_data': True, 'silent': True}
+#     zipfile.ZipFile('model_files.zip').extractall()
+#     model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
+#     return model
 
 
-loop = asyncio.get_event_loop()
-tasks = [asyncio.ensure_future(setup_model())]
-model = loop.run_until_complete(asyncio.gather(*tasks))[0]
-loop.close()
-
-label_mapping = {"0": 0, "1": 1}
+# loop = asyncio.get_event_loop()
+# tasks = [asyncio.ensure_future(setup_model())]
+# model = loop.run_until_complete(asyncio.gather(*tasks))[0]
+# loop.close()
+#
+# label_mapping = {"0": 0, "1": 1}
 
 
 @app.route('/predict', methods=['POST'])
@@ -80,9 +81,10 @@ async def bulk_prediction(request):
     first_name = form['first-name']
     last_name = form['last-name']
 
-    bulk_predict.delay(data, email, first_name, last_name)
+    sleep(5)
+    # bulk_predict.delay(data, email, first_name, last_name)
 
-    return RedirectResponse('/')
+    return templates.TemplateResponse('thank-you.html', {'request': request})
 
 
 @app.route("/")
