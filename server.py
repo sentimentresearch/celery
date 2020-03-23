@@ -1,13 +1,8 @@
-import aiohttp
-import asyncio
 import uvicorn
 from io import StringIO
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import UJSONResponse
-from simpletransformers.classification import ClassificationModel
-import zipfile
-import os
 from starlette.templating import Jinja2Templates
 from tasks import bulk_predict, model
 import csv

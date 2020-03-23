@@ -9,36 +9,18 @@ from uuid import uuid4
 import csv
 from simpletransformers.classification import ClassificationModel
 import zipfile
-import aiohttp
-import asyncio
+from urllib.request import urlretrieve
+
 
 app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379"))
 
-export_file_url = os.getenv('MODEL_DROPBOX_LINK')
-export_file_name = 'model_files.zip'
+urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
+zipfile.ZipFile('model_files.zip').extractall()
 
-
-async def download_file(url, dest):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            data = await response.read()
-            with open(dest, 'wb') as f:
-                f.write(data)
-
-
-async def setup_model():
-    await download_file(export_file_url, export_file_name)
-    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
             'reprocess_input_data': True, 'silent': False}
-    zipfile.ZipFile('model_files.zip').extractall()
-    classifier = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
-    return classifier
 
-
-loop = asyncio.get_event_loop()
-tasks = [asyncio.ensure_future(setup_model())]
-model = loop.run_until_complete(asyncio.gather(*tasks))[0]
-loop.close()
+model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
 
 
 @app.task
