@@ -42,10 +42,10 @@ def bulk_predict(data, email, first_name, last_name):
             writer.writerow([text, prediction])
 
     with open(filename, 'rb') as f:
-        data = f.read()
+        file = f.read()
         f.close()
 
-    encoded = base64.b64encode(data).decode()
+    encoded = base64.b64encode(file).decode()
     attachment = Attachment()
     attachment.file_content = FileContent(encoded)
     attachment.file_type = FileType('text/csv')
