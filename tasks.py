@@ -14,17 +14,17 @@ from urllib.request import urlretrieve
 
 app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379"))
 
-urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
-zipfile.ZipFile('model_files.zip').extractall()
-
-args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
-            'reprocess_input_data': True, 'silent': False}
-
-model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
-
 
 @app.task
 def bulk_predict(data, email, first_name, last_name):
+    urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
+    zipfile.ZipFile('model_files.zip').extractall()
+
+    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+            'reprocess_input_data': True, 'silent': False}
+
+    model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
+
     predictions = model.predict(data)[0].tolist()
 
     message = Mail(
@@ -54,6 +54,14 @@ def bulk_predict(data, email, first_name, last_name):
     message.attachment = attachment
 
     client = SendGridAPIClient(os.getenv("SENDGRID_KEY"))
+    client.send(message)
+
+    message = Mail(
+        from_email='thilo@colabel.com',
+        to_emails='sentiment-research.bwl@uni-hamburg.de',
+        subject='New submission (sentiment model)',
+        html_content='Number of rows: ' + str(len(data))
+    )
     client.send(message)
 
     os.remove(filename)

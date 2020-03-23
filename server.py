@@ -6,11 +6,23 @@ from starlette.responses import UJSONResponse
 from starlette.templating import Jinja2Templates
 from tasks import bulk_predict, model
 import csv
+import zipfile
+from urllib.request import urlretrieve
+from simpletransformers.classification import ClassificationModel
+import os
 
 
 app = Starlette()
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_headers=['*'], allow_methods=['*'])
 templates = Jinja2Templates(directory='templates')
+
+urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
+zipfile.ZipFile('model_files.zip').extractall()
+
+args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+            'reprocess_input_data': True, 'silent': False}
+
+model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
 
 label_mapping = {"0": 0, "1": 1}
 
