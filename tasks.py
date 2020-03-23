@@ -14,7 +14,7 @@ import asyncio
 
 app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379"))
 
-export_file_url = 'https://www.dropbox.com/s/bgljpmn90u7v91n/model_files.zip?raw=1'
+export_file_url = os.getenv('MODEL_DROPBOX_LINK')
 export_file_name = 'model_files.zip'
 
 
@@ -35,13 +35,14 @@ async def setup_model():
     return classifier
 
 
+loop = asyncio.get_event_loop()
+tasks = [asyncio.ensure_future(setup_model())]
+model = loop.run_until_complete(asyncio.gather(*tasks))[0]
+loop.close()
+
+
 @app.task
 def bulk_predict(data, email, first_name, last_name):
-    loop = asyncio.get_event_loop()
-    tasks = [asyncio.ensure_future(setup_model())]
-    model = loop.run_until_complete(asyncio.gather(*tasks))[0]
-    loop.close()
-
     predictions = model.predict(data)[0].tolist()
 
     message = Mail(
