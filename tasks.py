@@ -5,7 +5,6 @@ from sendgrid.helpers.mail import (
     Mail, Attachment, FileContent, FileName,
     FileType, Disposition)
 from sendgrid import SendGridAPIClient
-from uuid import uuid4
 import csv
 from simpletransformers.classification import ClassificationModel
 import zipfile
@@ -16,7 +15,7 @@ app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6
 
 
 @app.task
-def bulk_predict(data, email, first_name, last_name):
+def bulk_predict(data, original_file_name, email, first_name, last_name):
     urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
     zipfile.ZipFile('model_files.zip').extractall()
 
@@ -28,13 +27,20 @@ def bulk_predict(data, email, first_name, last_name):
     predictions = model.predict(data)[0].tolist()
 
     message = Mail(
-        from_email='thilo@colabel.com',
+        from_email='sentimentresearch@sendgrid.net',
         to_emails=email,
         subject='Your sentiment analysis results are ready',
-        html_content='Dear ' + first_name + ' ' + last_name + ' you can find your data attached to this email.'
+        html_content='Dear ' + first_name + ' ' + last_name + ',<br>Please find your data with sentiment predictions attached to this email.'
+                        '<br><br>Thanks for using our service. We appreciate any feedback you may have.'
+                        '<br><br>For full details on accuracy and sentiment analysis benchmarks please download our full paper here:'
+                        '<br>www.accurate-sentiment-analysis.com'
+                        '<br><br>Was this service useful for you? If so, please support us by spreading the word and sharing our website with anyone potentially interested.'
+                        '<br><br>Kind regards,'
+                        '<br>Mark Heitmann, Christian Siebert, Jochen Hartmann, and Christina Schamp'
+                        '<br><br>sentiment-research.bwl@uni-hamburg.de'
     )
 
-    filename = str(uuid4()) + '.csv'
+    filename = original_file_name + '_wSentiment.csv'
     with open(filename, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['text', 'label'])
@@ -57,7 +63,7 @@ def bulk_predict(data, email, first_name, last_name):
     client.send(message)
 
     message = Mail(
-        from_email='thilo@colabel.com',
+        from_email='sentimentresearch@sendgrid.net',
         to_emails='sentiment-research.bwl@uni-hamburg.de',
         subject='New submission (sentiment model)',
         html_content='Number of rows: ' + str(len(data))
@@ -65,3 +71,13 @@ def bulk_predict(data, email, first_name, last_name):
     client.send(message)
 
     os.remove(filename)
+
+# TODO
+# sendgrid smtp (fwd answers?)
+# Limit rows to 100k client-side - red/invalid field + notification
+# save all columns in output file
+# make column selection work (papaparse & bulma)
+# detect delimiter
+# make first and list splitted (Bulma)
+# ramp up celery & redis machines
+# (validate text column)

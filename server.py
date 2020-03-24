@@ -57,6 +57,8 @@ async def bulk_prediction(request):
     for row in reader:
         data.append(row[0])
 
+    data = data[:100000]
+
     email = form['email']
     first_name = form['first-name']
     last_name = form['last-name']
