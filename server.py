@@ -4,7 +4,7 @@ from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import UJSONResponse
 from starlette.templating import Jinja2Templates
-from tasks import bulk_predict, model
+from tasks import bulk_predict
 import csv
 import zipfile
 from urllib.request import urlretrieve
