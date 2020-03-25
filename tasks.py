@@ -36,7 +36,7 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
         from_email='sentiment@colabel.com',
         to_emails=email,
         subject='Your sentiment analysis results are ready',
-        html_content='Dear ' + first_name + ' ' + last_name + ',<br>Please find your data with sentiment predictions attached to this email.'
+        html_content='Dear ' + first_name + ' ' + last_name + ',<br><br>Please find your data with sentiment predictions attached to this email.'
                         '<br><br>Thanks for using our service. We appreciate any feedback you may have.'
                         '<br><br>For full details on accuracy and sentiment analysis benchmarks please download our full paper here:'
                         '<br>www.accurate-sentiment-analysis.com'
