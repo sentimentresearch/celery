@@ -12,6 +12,7 @@ uvicorn==0.7.1
 ujson==2.0.1
 torch==1.4.0
 torchvision==0.5.0
+numpy==1.18.2
 
 # NOTE: Kombu 4.6.5 results in a build failure. Bumping down to 4.6.4
 #       See this github issue: https://github.com/celery/kombu/issues/1063

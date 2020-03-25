@@ -9,9 +9,15 @@ import csv
 from simpletransformers.classification import ClassificationModel
 import zipfile
 from urllib.request import urlretrieve
+import numpy as np
 
 
 app = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379"))
+
+
+def softmax(x):
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum(axis=0)
 
 
 @app.task
@@ -19,15 +25,15 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
     urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
     zipfile.ZipFile('model_files.zip').extractall()
 
-    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
+    args = {'use_multiprocessing': True, 'no_cache': True, 'use_cached_eval_features': False,
             'reprocess_input_data': True, 'silent': False}
 
     model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
 
-    predictions = model.predict(data)[0].tolist()
+    predictions = model.predict(data)[1].tolist()
 
     message = Mail(
-        from_email='sentimentresearch@sendgrid.net',
+        from_email='sentiment@colabel.com',
         to_emails=email,
         subject='Your sentiment analysis results are ready',
         html_content='Dear ' + first_name + ' ' + last_name + ',<br>Please find your data with sentiment predictions attached to this email.'
@@ -43,9 +49,9 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
     filename = original_file_name.replace('.csv', '_wSentiment.csv')
     with open(filename, 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['text', 'label'])
+        writer.writerow(['text', 'negative', 'positive'])
         for text, prediction in zip(data, predictions):
-            writer.writerow([text, prediction])
+            writer.writerow([text, *list(softmax(prediction))])
 
     with open(filename, 'rb') as f:
         file = f.read()
@@ -63,7 +69,7 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
     client.send(message)
 
     message = Mail(
-        from_email='sentimentresearch@sendgrid.net',
+        from_email='sentiment@colabel.com',
         to_emails='sentiment-research.bwl@uni-hamburg.de',
         subject='New submission (sentiment model)',
         html_content='Number of rows: ' + str(len(data))

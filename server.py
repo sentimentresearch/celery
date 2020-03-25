@@ -10,6 +10,7 @@ import zipfile
 from urllib.request import urlretrieve
 from simpletransformers.classification import ClassificationModel
 import os
+import numpy as np
 
 
 app = Starlette()
@@ -27,6 +28,11 @@ model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args
 label_mapping = {"0": 0, "1": 1}
 
 
+def softmax(x):
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum(axis=0)
+
+
 @app.route('/predict', methods=['POST'])
 async def predict(request):
     body = await request.json()
@@ -36,6 +42,8 @@ async def predict(request):
 
     results = []
     for i, instance_scores in enumerate(instances):
+
+        instance_scores = softmax(instance_scores)
 
         predictions = []
         for j, score in enumerate(instance_scores):
