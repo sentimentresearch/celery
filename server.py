@@ -63,7 +63,7 @@ async def bulk_prediction(request):
     first_name = form['first-name']
     last_name = form['last-name']
 
-    bulk_predict.delay(data, email, first_name, last_name)
+    bulk_predict.delay(data, form['file'].filename, email, first_name, last_name)
 
     return templates.TemplateResponse('thank-you.html', {'request': request})
 

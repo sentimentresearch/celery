@@ -40,7 +40,7 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
                         '<br><br>sentiment-research.bwl@uni-hamburg.de'
     )
 
-    filename = original_file_name + '_wSentiment.csv'
+    filename = original_file_name.replace('.csv', '_wSentiment.csv')
     with open(filename, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['text', 'label'])
