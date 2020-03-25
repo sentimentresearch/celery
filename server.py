@@ -43,7 +43,7 @@ async def predict(request):
     results = []
     for i, instance_scores in enumerate(instances):
 
-        instance_scores = softmax(instance_scores)
+        instance_scores = list(softmax(instance_scores))
 
         predictions = []
         for j, score in enumerate(instance_scores):

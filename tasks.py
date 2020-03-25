@@ -25,7 +25,7 @@ def bulk_predict(data, original_file_name, email, first_name, last_name):
     urlretrieve(os.getenv('MODEL_DROPBOX_LINK'), 'model_files.zip')
     zipfile.ZipFile('model_files.zip').extractall()
 
-    args = {'use_multiprocessing': True, 'no_cache': True, 'use_cached_eval_features': False,
+    args = {'use_multiprocessing': False, 'no_cache': True, 'use_cached_eval_features': False,
             'reprocess_input_data': True, 'silent': False}
 
     model = ClassificationModel('roberta', 'model_files/', use_cuda=False, args=args)
