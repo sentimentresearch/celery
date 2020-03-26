@@ -63,7 +63,8 @@ async def bulk_prediction(request):
     reader = csv.reader(StringIO(contents.decode()))
     data = []
     for row in reader:
-        data.append(row[0])
+        if len(row) > 0:
+            data.append(row[0])
 
     data = data[:100000]
 
